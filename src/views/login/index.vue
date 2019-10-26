@@ -2,13 +2,13 @@
   <div class="container">
     <el-card>
       <img src="../../assets/images/logo_index.png" width="200px" />
-      <el-form ref="form" :model="formData">
-        <el-form-item>
-          <el-input v-model="formData.name" placeholder="请输入手机号"></el-input>
+      <el-form ref="formData" :model="formData" :rules="formRules" status-icon>
+        <el-form-item prop="mobile">
+          <el-input v-model="formData.mobile" placeholder="请输入手机号"></el-input>
         </el-form-item>
-        <el-form-item>
+        <el-form-item prop="code">
           <el-input
-            v-model="formData.name"
+            v-model="formData.code"
             placeholder="请输入验证码"
             style="width:235px;margin-right:10px;"
           ></el-input>
@@ -17,7 +17,7 @@
         <el-form-item>
           <el-checkbox :value="true">我已阅读并同意用户协议和隐私条款</el-checkbox>
         </el-form-item>
-        <el-button type="primary">立即登录</el-button>
+        <el-button type="primary" @click="login">立即登录</el-button>
       </el-form>
     </el-card>
   </div>
@@ -25,10 +25,36 @@
 
 <script>
 export default {
+  methods: {
+    checkMobile (rule, value, callback) {
+      if (/^1[3-9]\d{9}$/.test(value)) {
+        callback()
+      } else {
+        callback(new Error('手机格式不对'))
+      }
+    },
+    login () {
+      this.$refs['formData'].validate(validate => {
+        if (validate) {
+          this.$http.post('authorizations', this.formData).then(results => {
+            this.$router.push('/')
+          }).catch(() => {
+            this.$message.error('信息填写错了哦')
+          })
+        }
+      })
+    }
+  },
   data () {
     return {
       formData: {
-        name: ''
+        mobile: '',
+        code: ''
+      },
+      formRules: {
+        mobile: [{ required: true, message: '请输入手机号', trigger: 'blur' },
+          { validator: this.checkMobile, trigger: 'blur' }],
+        code: [{ required: true, message: '请输入验证码', trigger: 'blur' }, { len: 6, message: '验证码6个字符', trigger: 'blur' }]
       }
     }
   }
