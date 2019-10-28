@@ -24,6 +24,7 @@
 </template>
 
 <script>
+import local from '@/utils/local'
 export default {
   methods: {
     checkMobile (rule, value, callback) {
@@ -37,6 +38,7 @@ export default {
       this.$refs['formData'].validate(validate => {
         if (validate) {
           this.$http.post('authorizations', this.formData).then(results => {
+            local.setUser(results.data.data)
             this.$router.push('/')
           }).catch(() => {
             this.$message.error('信息填写错了哦')
