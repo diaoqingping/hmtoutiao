@@ -35,14 +35,16 @@ export default {
       }
     },
     login () {
-      this.$refs['formData'].validate(validate => {
+      this.$refs['formData'].validate(async validate => {
         if (validate) {
-          this.$http.post('authorizations', this.formData).then(results => {
-            local.setUser(results.data.data)
+          try {
+            const { data: { data } } = await
+            this.$http.post('authorizations', this.formData)
+            local.setUser(data)
             this.$router.push('/')
-          }).catch(() => {
+          } catch (error) {
             this.$message.error('信息填写错了哦')
-          })
+          }
         }
       })
     }

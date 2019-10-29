@@ -4,7 +4,7 @@
       <el-aside :width="isopen?'200px':'64px'">
         <div class="logo" :class="{smallLogo:!isopen}"></div>
         <el-menu
-          default-active="/"
+          default-active="$route.path"
           background-color="#002033"
           text-color="#fff"
           active-text-color="#ffd04b"
@@ -47,15 +47,15 @@
         <el-header>
           <span class="el-icon-s-fold" @click="toggleMenu"></span>
           <span class="text_title">江苏传智播客科技教育有限公司</span>
-          <el-dropdown class="dropdown">
+          <el-dropdown class="dropdown" @command="handleClick">
             <span class="el-dropdown-link">
-              <img src="../../assets/images/avatar.jpg" />
-              <span class="userName">用户名称</span>
+              <img :src="user.photo" class="toux" />
+              <span class="userName">{{user.name}}</span>
               <i class="el-icon-arrow-down el-icon--right"></i>
             </span>
             <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item icon="el-icon-setting">个人设置</el-dropdown-item>
-              <el-dropdown-item icon="el-icon-unlock">退出登录</el-dropdown-item>
+              <el-dropdown-item icon="el-icon-setting" command="setting">个人设置</el-dropdown-item>
+              <el-dropdown-item icon="el-icon-unlock" command="logout">退出登录</el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
         </el-header>
@@ -69,15 +69,27 @@
 </template>
 
 <script>
+import local from '@/utils/local'
 export default {
   data () {
     return {
-      isopen: true
+      isopen: true,
+      user: local.getUser() || {}
     }
   },
   methods: {
     toggleMenu () {
       this.isopen = !this.isopen
+    },
+    setting () {
+      this.$router.push('/setting')
+    },
+    logout () {
+      local.delUser()
+      this.$router.push('/login')
+    },
+    handleClick (command) {
+      this[command]()
     }
   }
 }
@@ -95,6 +107,9 @@ export default {
     height: 50px;
     background: url(../../assets/images/logo_admin.png) no-repeat center/165px
       auto;
+  }
+  .toux {
+    border-radius: 50%;
   }
   .el-container {
     height: 100%;
