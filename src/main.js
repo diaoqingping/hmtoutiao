@@ -5,6 +5,7 @@ import App from './App.vue'
 import router from '@/router'
 import axios from '@/api'
 import plugin from '@/components'
+import '@/styles/index.less'
 
 Vue.use(ElementUI)
 Vue.use(plugin)

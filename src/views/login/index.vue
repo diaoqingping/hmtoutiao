@@ -2,7 +2,7 @@
   <div class="container">
     <el-card>
       <img src="../../assets/images/logo_index.png" width="200px" />
-      <el-form ref="formData" :model="formData" :rules="formRules" status-icon>
+      <el-form ref="formData" :rules="formRules" status-icon :model="formData">
         <el-form-item prop="mobile">
           <el-input v-model="formData.mobile" placeholder="请输入手机号"></el-input>
         </el-form-item>
@@ -26,6 +26,18 @@
 <script>
 import local from '@/utils/local'
 export default {
+  data () {
+    return {
+      formData: {
+        mobile: '18888888888',
+        code: '246810'
+      },
+      formRules: {
+        mobile: [{ required: true, message: '请输入手机号', trigger: 'blur' }, { validator: this.checkMobile, trigger: 'blur' }],
+        code: [{ required: true, message: '请输入验证码', trigger: 'blur' }, { len: 6, message: '验证码6个字符', trigger: 'blur' }]
+      }
+    }
+  },
   methods: {
     checkMobile (rule, value, callback) {
       if (/^1[3-9]\d{9}$/.test(value)) {
@@ -38,28 +50,19 @@ export default {
       this.$refs['formData'].validate(async validate => {
         if (validate) {
           try {
-            const { data: { data } } = await
-            this.$http.post('authorizations', this.formData)
+            console.log(this.formData)
+            const { data: { data } } = await this.$http.post('authorizations', this.formData)
+            console.log(data)
+            // 成功
+            // 保存用户的信息
             local.setUser(data)
             this.$router.push('/')
           } catch (error) {
+            console.log(this.formData)
             this.$message.error('信息填写错了哦')
           }
         }
       })
-    }
-  },
-  data () {
-    return {
-      formData: {
-        mobile: '',
-        code: ''
-      },
-      formRules: {
-        mobile: [{ required: true, message: '请输入手机号', trigger: 'blur' },
-          { validator: this.checkMobile, trigger: 'blur' }],
-        code: [{ required: true, message: '请输入验证码', trigger: 'blur' }, { len: 6, message: '验证码6个字符', trigger: 'blur' }]
-      }
     }
   }
 }

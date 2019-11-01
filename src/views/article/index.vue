@@ -16,14 +16,7 @@
           </el-radio-group>
         </el-form-item>
         <el-form-item label="频道">
-          <el-select v-model="reqParams.channel_id" placeholder="请选择">
-            <el-option
-              v-for="item in channelOptions"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-            ></el-option>
-          </el-select>
+          <my-channel v-model="reqParams.channel_id"></my-channel>
         </el-form-item>
         <el-form-item label="日期">
           <el-date-picker
@@ -32,26 +25,75 @@
             range-separator="至"
             start-placeholder="开始日期"
             end-placeholder="结束日期"
+            @change="changeDate"
+            value-format="yyyy-MM-dd"
           ></el-date-picker>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary">筛选</el-button>
+          <el-button type="primary" @click="search">筛选</el-button>
         </el-form-item>
       </el-form>
     </el-card>
-    <!-- <cc>
-      <div slot="content">内容</div>
-      <p slot="footer">底部</p>
-    </cc>
-    <cc>
-      <div slot="content" slot-scope="scope">{{scope.pn}}</div>
-      <p slot="footer">gdsfh</p>
-    </cc>-->
+    <el-card style="margin-top:20px">
+      <div slot="header">
+        <span>根据筛选条件查询到{{total}}条数据</span>
+      </div>
+      <el-table :data="articles">
+        <el-table-column label="图片">
+          <template slot-scope="scope">
+            <el-image :src="scope.row.cover.images[0]" fit="fill" style="width:150px;height:100px;">
+              <div slot="error">
+                <img src="../../assets/images/error.gif" width="150" height="100" />
+              </div>
+            </el-image>
+          </template>
+        </el-table-column>
+        <el-table-column label="标题" prop="title"></el-table-column>
+        <el-table-column label="日期" prop="pubdate"></el-table-column>
+        <el-table-column label="状态">
+          <template slot-scope="scope">
+            <el-tag type="info" v-if="scope.row.status===0">草稿</el-tag>
+            <el-tag v-if="scope.row.status===1">待审核</el-tag>
+            <el-tag type="success" v-if="scope.row.status===2">审核通过</el-tag>
+            <el-tag type="warning" v-if="scope.row.status===3">标签四</el-tag>
+            <el-tag type="danger" v-if="scope.row.status===4">标签五</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作">
+          <template slot-scope="scope">
+            <el-row>
+              <el-button
+                type="primary"
+                plain
+                icon="el-icon-edit"
+                circle
+                @click="toEdit(scope.row.id)"
+              ></el-button>
+              <el-button
+                type="danger"
+                plain
+                icon="el-icon-delete"
+                circle
+                @click="del(scope.row.id)"
+              ></el-button>
+            </el-row>
+          </template>
+        </el-table-column>
+      </el-table>
+      <el-pagination
+        background
+        layout="prev, pager, next"
+        :page-size="reqParams.per_page"
+        :current-page="reqParams.page"
+        :total="total"
+        style="margin-top:20px"
+        @current-change="pager"
+      ></el-pagination>
+    </el-card>
   </div>
 </template>
 
 <script>
-// import test from '@/views/test'
 export default {
   data () {
     return {
@@ -59,15 +101,56 @@ export default {
         status: null,
         channel_id: null,
         begin_pubdate: null,
-        end_pubdate: null
+        end_pubdate: null,
+        per_page: null,
+        page: null,
+        begin_update: null,
+        end_update: null
       },
-      channelOptions: [{ value: 1, label: 'java' }, { value: 2, label: '前端' }],
-      dateArr: []
+      dateArr: [],
+      articles: [],
+      total: 0
     }
   },
-  components: {
-    // 'cc': test
+  created () {
+    this.getArticles()
+  },
+  methods: {
+    async getArticles () {
+      const { data: { data } } = await this.$http.get('articles', { params: this.reqParams })
+      this.articles = data.results
+      this.total = data.total_count
+    },
+    pager (newPage) {
+      this.reqParams.page = newPage
+      this.getArticles()
+    },
+    search () {
+      if (this.reqParams.channel_id === '') {
+        this.reqParams.channel_id = null
+      }
+      this.reqParams.page = 1
+      this.getArticles()
+    },
+    changeDate (dateArr) {
+      if (dateArr) {
+        this.reqParams.begin_pubdate = dateArr[0]
+        this.reqParams.end_update = dateArr[1]
+      } else {
+        this.reqParams.begin_pubdate = null
+        this.reqParams.end_update = null
+      }
+    },
+    toEdit (articleId) {
+      this.$router.push({ path: '/public', query: { id: articleId } })
+    },
+    async del (articleId) {
+      await this.$http.delete(`articles/${articleId}`)
+      this.$message.success('删除文章成功')
+      this.getArticles()
+    }
   }
+
 }
 </script>
 
