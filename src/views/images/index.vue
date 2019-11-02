@@ -36,12 +36,16 @@
       </div>
       <el-dialog title="添加素材" :visible.sync="dialogVisible" width="300px">
         <el-upload
+          ref="up-load"
           class="avatar-uploader"
-          action="https://jsonplaceholder.typicode.com/posts/"
+          action="http://ttapi.research.itcast.cn/mp/v1_0/user/images"
+          :headers="headers"
           :show-file-list="true"
+          name="image"
           style="text-align:center;"
           :before-upload="beforeAvatarUpload"
           :on-success="handleSuccess"
+          accept=".jpg, .jpeg, .png, .gif"
         >
           <img v-if="imgURL" :src="imgURL" class="avatar" />
           <i v-else class="el-icon-plus avatar-uploader-icon"></i>
@@ -65,7 +69,12 @@ export default {
       dialogVisible: false,
       imageUrl: null,
       fileList: [],
-      imgURL: null
+      imgURL: null,
+      headers: {
+        Authorization:
+          'Bearer ' +
+          JSON.parse(window.sessionStorage.getItem('local-key')).token
+      }
     }
   },
   methods: {
@@ -108,21 +117,31 @@ export default {
       })
     },
     beforeAvatarUpload (file) {
-      const isJPG = file.type === 'image/jpeg'
+      const isJPG = file.type === 'image/jpeg' || 'image/png' || 'image/jpg' || 'image/gif'
       const isLt2M = file.size / 1024 / 1024 < 2
-
       if (!isJPG) {
-        this.$message.error('上传头像图片只能是 JPG 格式!')
+        this.$message.error('上传头像图片只能是 JPG | png | jpeg格式!')
       }
       if (!isLt2M) {
         this.$message.error('上传头像图片大小不能超过 2MB!')
       }
       return isJPG && isLt2M
     },
-    handleSuccess (res, file) {
-      console.log(111)
-      this.setHeader('content-type', 'Access-Control-Allow-Origin')
-      console.log(res.data)
+    handleSuccess (res) {
+      // - 预览 2s 钟 ，提示上传成功
+      console.log(res)
+      this.imgURL = res.data.url
+      console.log(res.data.url)
+      console.log(this.imgURL)
+      this.$message.success('上传成功')
+      window.setTimeout(() => {
+        // - 自动关闭对话框，更新列表数据。
+        this.dialogVisible = false
+        this.getImages()
+        // 再次打开对话框的时候，预览的是上传按钮 而不是 之前的图片
+        this.imgURL = null
+        this.$refs['up-load'].clearFiles()
+      }, 2000)
     }
   },
   created () {
