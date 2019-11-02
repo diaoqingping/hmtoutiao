@@ -40,8 +40,10 @@
           action="https://jsonplaceholder.typicode.com/posts/"
           :show-file-list="true"
           style="text-align:center;"
+          :before-upload="beforeAvatarUpload"
+          :on-success="handleSuccess"
         >
-          <img v-if="imageUrl" :src="imageUrl" class="avatar" />
+          <img v-if="imgURL" :src="imgURL" class="avatar" />
           <i v-else class="el-icon-plus avatar-uploader-icon"></i>
         </el-upload>
       </el-dialog>
@@ -62,13 +64,14 @@ export default {
       total: 0,
       dialogVisible: false,
       imageUrl: null,
-      fileList: []
+      fileList: [],
+      imgURL: null
     }
   },
   methods: {
     async getImages () {
       const { data: { data } } = await this.$http.get('user/images', { params: this.reqParams })
-      console.log(data.results)
+      // console.log(data.results)
       this.images = data.results
       this.total = data.total_count
     },
@@ -103,6 +106,23 @@ export default {
           message: '已取消删除'
         })
       })
+    },
+    beforeAvatarUpload (file) {
+      const isJPG = file.type === 'image/jpeg'
+      const isLt2M = file.size / 1024 / 1024 < 2
+
+      if (!isJPG) {
+        this.$message.error('上传头像图片只能是 JPG 格式!')
+      }
+      if (!isLt2M) {
+        this.$message.error('上传头像图片大小不能超过 2MB!')
+      }
+      return isJPG && isLt2M
+    },
+    handleSuccess (res, file) {
+      console.log(111)
+      this.setHeader('content-type', 'Access-Control-Allow-Origin')
+      console.log(res.data)
     }
   },
   created () {
