@@ -7,6 +7,7 @@ import NotFound from '@/views/404'
 import local from '@/utils/local'
 import Article from '@/views/article'
 import Images from '@/views/images'
+import Public from '@/views/public'
 
 Vue.use(VueRouter)
 
@@ -23,7 +24,12 @@ const router = new VueRouter({
     }, {
       path: '/image',
       component: Images
-    }]
+    },
+    {
+      path: '/public',
+      component: Public
+    }
+    ]
   }, {
     path: '/login',
     component: Login
