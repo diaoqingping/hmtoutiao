@@ -1,6 +1,8 @@
 <template>
   <div class="container-image">
-    <div class="imgbtn" @click="addCover"></div>
+    <div class="imgbtn" @click="addCover">
+      <img :src="value || btnImg" />
+    </div>
     <el-dialog :visible.sync="dialogVisible" width="750px">
       <el-tabs v-model="activeName" type="card">
         <el-tab-pane label="素材库" name="image">
@@ -49,19 +51,22 @@
       </el-tabs>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+        <el-button type="primary" @click="selectedCover">确 定</el-button>
       </span>
     </el-dialog>
   </div>
 </template>
 
 <script>
+import btnimg from '../assets/images/default.png'
 export default {
+  props: ['value'],
   data () {
     return {
       dialogVisible: false,
       activeName: 'image',
       total: 0,
+      btnImg: btnimg,
       reqParams: {
         collect: false,
         page: 1,
@@ -114,6 +119,22 @@ export default {
       this.imgURL = res.data.url
       // 再次打开对话框的时候，预览的是上传按钮 而不是 之前的图片
       // this.imgURL = null
+    },
+    selectedCover () {
+      if (this.activeName === 'image') {
+        if (!this.selectedImageUrl) {
+          return this.$message.warning('请选择一张图片')
+        }
+        this.btnImg = this.selectedImageUrl
+        // 提交给父组件
+        this.$emit('input', this.selectedImageUrl)
+        this.dialogVisible = false
+      } else if (this.activeName === 'upload') {
+        this.btnImg = this.imgURL
+        // 提交给父组件
+        this.$emit('input', this.imgURL)
+        this.dialogVisible = false
+      }
     }
   }
 }
@@ -127,7 +148,10 @@ export default {
     width: 120px;
     height: 120px;
     border: 1px dashed #ddd;
-    background: url(../assets/images/default.png) no-repeat center/120px;
+    img {
+      width: 100%;
+      height: 100%;
+    }
   }
   .img_list {
     padding: 20px;
