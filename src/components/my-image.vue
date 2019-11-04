@@ -32,11 +32,10 @@
         </el-tab-pane>
         <el-tab-pane label="上传图片" name="upload">
           <el-upload
-            ref="up-load"
             class="avatar-uploader"
             action="http://ttapi.research.itcast.cn/mp/v1_0/user/images"
             :headers="headers"
-            :show-file-list="true"
+            :show-file-list="false"
             name="image"
             style="text-align:center;"
             :before-upload="beforeAvatarUpload"
@@ -112,20 +111,9 @@ export default {
       return isJPG && isLt2M
     },
     handleSuccess (res) {
-      // - 预览 2s 钟 ，提示上传成功
-      console.log(res)
       this.imgURL = res.data.url
-      console.log(res.data.url)
-      console.log(this.imgURL)
-      this.$message.success('上传成功')
-      window.setTimeout(() => {
-        // - 自动关闭对话框，更新列表数据。
-        this.dialogVisible = false
-        this.getImages()
-        // 再次打开对话框的时候，预览的是上传按钮 而不是 之前的图片
-        this.imgURL = null
-        this.$refs['up-load'].clearFiles()
-      }, 2000)
+      // 再次打开对话框的时候，预览的是上传按钮 而不是 之前的图片
+      // this.imgURL = null
     }
   }
 }
