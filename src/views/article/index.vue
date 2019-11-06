@@ -102,8 +102,8 @@ export default {
         channel_id: null,
         begin_pubdate: null,
         end_pubdate: null,
-        per_page: null,
-        page: null,
+        per_page: 10,
+        page: 1,
         begin_update: null,
         end_update: null
       },
