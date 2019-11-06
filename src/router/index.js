@@ -8,6 +8,8 @@ import local from '@/utils/local'
 import Article from '@/views/article'
 import Images from '@/views/images'
 import Public from '@/views/public'
+import Comment from '@/views/comment'
+import Setting from '@/views/setting'
 
 Vue.use(VueRouter)
 
@@ -24,12 +26,16 @@ const router = new VueRouter({
     }, {
       path: '/image',
       component: Images
-    },
-    {
+    }, {
       path: '/public',
       component: Public
-    }
-    ]
+    }, {
+      path: '/comment',
+      component: Comment
+    }, {
+      path: '/setting',
+      component: Setting
+    }]
   }, {
     path: '/login',
     component: Login

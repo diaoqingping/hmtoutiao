@@ -70,11 +70,15 @@
 
 <script>
 import local from '@/utils/local'
+import eventBus from '@/eventBus'
 export default {
   data () {
     return {
       isopen: true,
-      user: local.getUser() || {}
+      user: {
+        name: '',
+        photo: ''
+      }
     }
   },
   methods: {
@@ -91,6 +95,15 @@ export default {
     handleClick (command) {
       this[command]()
     }
+  },
+  created () {
+    this.user = local.getUser() || {}
+    eventBus.$on('updateName', (name) => {
+      this.user.name = name
+    })
+    eventBus.$on('updatePhoto', (photo) => {
+      this.user.photo = photo
+    })
   }
 }
 </script>
